@@ -1,2 +1,3 @@
 jishaku @ git+https://github.com/Gorialis/jishaku@0a1a45d92e15e25dc30020dd0eb31898c538c6c1
 discord.py @ git+https://github.com/Rapptz/discord.py@300fb0411e9e44bcf72476dae7a7c13b52e832ed
+python-dotenv==0.20.0
