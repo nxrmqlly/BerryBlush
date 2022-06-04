@@ -16,13 +16,7 @@ class Beta(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot: BerryBlush):
         self.bot = bot
     
-    @commands.command()
-    async def emt(self, ctx: commands.Context):
-        """Interactive Embed maker"""
-        init_em = discord.Embed(title='...', description='...')
-        ms = await ctx.send('Loading..')
-        await ms.edit(None, view=embed_classes.EmbedMakerView(init_msg=ms, ctx=ctx, bot=self.bot), embed=init_em)
-        
+    
 
 async def setup(bot):
     await bot.add_cog(Beta(bot))

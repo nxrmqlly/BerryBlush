@@ -4,6 +4,9 @@ import asyncio
 
 from discord.ext import commands
 from main import BerryBlush
+from cogs.classes import embed_classes
+from helpers.bases import ConfirmView
+
 
 class Utility(commands.Cog):
     """Utility/General use commands"""
@@ -30,160 +33,12 @@ class Utility(commands.Cog):
 
         await ctx.send(embed = em, view = viewer)
 
-    @commands.command(aliases=['em']) #! DEPRECATED
-    async def embed(self, ctx:commands.Context):
-        """! deprecated do not use"""
-        return await ctx.send("Sorry, the `embed` command has been archived.")
-        em = discord.Embed(title = f"...", description = '...', color = 0x000000)
-        await ctx.send("The BerryBlush custom embed maker!\nRespond to following messages to edit your embed!\n\nStarting in 5 seconds...")
-        await asyncio.sleep(5)
-
-        def check(m):
-            return m.author == ctx.message.author and m.channel == ctx.message.channel
-
-
-        # TITLE
-        await ctx.send(embed = em, content = "Please respond with the **Title** for the embed. You have 1 minute")
-        try:
-            x = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
+    @commands.command(aliases=['em', 'emb'])
+    async def embed(self, ctx: commands.Context):
+        """Interactive Embed maker"""
+        init_em = discord.Embed(title='...', description='...')
+        ms = await ctx.send('Loading..')
+        await ms.edit(None, view=embed_classes.EmbedMakerView(init_msg=ms, ctx=ctx, bot=self.bot), embed=init_em)
         
-        em.title = x.content
-
-
-        # DESCRIPTION
-        await ctx.send(embed = em, content = "Please respond with the **Description** for the embed. You have 1 minute")
-        try:
-            x = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
-
-        em.description = x.content
-
-
-        # FIELDS
-        await ctx.send(embed = em, content = "Please respond with the **Fields** for the embed (respond with `no` to skip). You have 5 minutes\nDo it this way: `name | value | *True/False = False`\n(name | value | inline) (`\" | \"` is a separator)\nAdd more fields by Creating a `newline`")
-        try:
-            x = await self.bot.wait_for('message', timeout=300.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
-
-        if x.content == "no":
-            pass
-
-        else:
-
-            fields = x.content.split("\n")
-            for field in fields:
-                if field:
-                    if not field.split(' |')[2]:
-                        name, value = field.split(" |")
-                        inline = True
-
-                    else:
-                        name, value, inline = field.split(" |")
-                        inline = True if inline.title() == "True" else False
-
-
-                    em.add_field(name=name, value=value, inline=inline)
-
-        # AUTHOR
-        await ctx.send(embed = em, content = "Please respond with the **Author** for the embed (respond with `no` to skip). You have 1 minute\nDo it this way: `name | [url]`")
-
-        try:
-            x = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
-        
-        if x.content == "no":
-            pass
-        else:
-            if not ' |' in x.content:
-                author = x.content
-                em.set_author(name=author)
-
-            else:
-                author, url = x.content.split(" |")
-
-                if re.search(r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)', url):
-                    em.set_author(name=author, icon_url=url)
-            
-
-        # FOOTER 
-        await ctx.send(embed = em, content = "Please respond with the **Footer** for the embed (respond with `no` to skip). You have 1 minute\nDo it this way: `name | [url]`")
-
-        try:
-            x = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
-
-        if x.content == "no":
-            pass
-        else:
-            if not ' |' in x.content:
-                footer = x.content
-                em.set_footer(name=footer)
-            else:
-                footer, url = x.content.split(" |")
-                if re.search(r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)', url):
-                    em.set_footer(text=footer, icon_url=url)
-
-        # IMAGE
-        await ctx.send(embed = em, content = "Please respond with the **Image** for the embed (respond with `no` to skip). You have 1 minute (must be a valid url)")
-        try:
-            x = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
-        
-        if x.content == "no":
-            pass
-        else:
-            if re.search(r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)', x.content):
-                em.set_image(url=x.content)
-
-        # THUMBNAIL
-        await ctx.send(embed = em, content = "Please respond with the **Thumbnail** for the embed (respond with `no` to skip). You have 1 minute. (must be a valid url).")
-        try:
-            x = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
-        
-        if x.content == "no":
-            pass
-        else:
-            if re.search(r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)', x.content):
-                em.set_thumbnail(url=x.content)
-
-
-        # COLOUR
-        await ctx.send(embed = em, content = "Please respond with the **Colour** for the embed (respond with `no` to skip). You have 1 minute")
-        try:
-            x = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
-
-        if x.content == "no":
-            pass
-
-        else:
-            if x.content.startswith("#"):
-                em.colour = int(x.content[1:], 16)
-            else:
-                em.colour = int(x.content, 16)
-
-        #CHANNEL TO POST IN
-        await ctx.send(embed = em, content = "Please respond with the **Channel** to post this embed. You have 1 minute")
-        try:
-            x = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return await ctx.send("Timed out!")
-
-        if isinstance(x.content, discord.TextChannel):
-            await x.conent.send(embed=em)
-
-        await ctx.send(embed = em)
-
-   
 async def setup(bot):
     await bot.add_cog(Utility(bot))
